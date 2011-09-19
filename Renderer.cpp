@@ -4,6 +4,8 @@
 #include "Utils.h"
 #include "Exception.h"
 
+using namespace std;
+
 Renderer::Renderer() 
 	: _initialized(false), _hasError(false), _errorDescription(), 
 	_target(NULL), _originalBitmap(NULL), _finalBitmap(NULL)
@@ -12,8 +14,8 @@ Renderer::Renderer()
 
 Renderer::~Renderer()
 {
-	SafeRelease(_originalBitmap);
 	SafeRelease(_finalBitmap);
+	SafeRelease(_originalBitmap);
 	SafeRelease(_target);
 }
 
@@ -84,20 +86,16 @@ void Renderer::Init(HWND hWnd)
 		UINT width, height;
 		HR(frame->GetSize(&width, &height));
 		WICRect rect={0,0,width, height};
-		Rgba *srcBuf = new Rgba[width*height];
-		HR(converter->CopyPixels(&rect, sizeof(Rgba)*width, sizeof(Rgba)*width*height, reinterpret_cast<BYTE*>(srcBuf)));
+		
+		vector<Rgba> srcBuf(height*width);
+		HR(converter->CopyPixels(&rect, sizeof(Rgba)*width, sizeof(Rgba)*width*height, reinterpret_cast<BYTE*>(srcBuf.data())));
 
-		Rgba *destBuf = new Rgba[width*height];
-
-		Filter(srcBuf, destBuf, width, height);
+		vector<Rgba> destBuf = Filter(srcBuf, width, height);
 
 		HR(_target->CreateBitmap(
-			D2D1::Size(width, height), destBuf, sizeof(Rgba)*width, 
+			D2D1::Size(width, height), destBuf.data(), sizeof(Rgba)*width, 
 			D2D1::BitmapProperties(D2D1::PixelFormat(DXGI_FORMAT_B8G8R8A8_UNORM,D2D1_ALPHA_MODE_IGNORE)), 
 			&_finalBitmap));
-
-		delete[] destBuf;
-		delete[] srcBuf;
 
 		SafeRelease(frame);
 		SafeRelease(converter);
@@ -144,8 +142,13 @@ void Renderer::Resize( UINT width, UINT height )
 	_target->Resize(D2D1::SizeU(width, height));
 }
 
-void Renderer::Filter(const Rgba * srcBuf, Rgba * destBuf, UINT width, UINT height)
+vector<Rgba> Renderer::Filter(const vector<Rgba>& srcBuf, UINT width, UINT height)
 {
+	if (srcBuf.size() < height*width)
+		throw SimpleException(L"Filter: supplied source vector is smaller than height*width");
+
+	vector<Rgba> destBuf(height*width);
+
 	const UINT size = 5;
 	const UINT mid = size/2;
 
@@ -178,4 +181,6 @@ void Renderer::Filter(const Rgba * srcBuf, Rgba * destBuf, UINT width, UINT heig
 
 			destBuf[p] = Rgba(r/sum, g/sum, b/sum, a/sum);
 		}
+
+	return destBuf;
 }

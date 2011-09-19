@@ -9,7 +9,7 @@ class Renderer
 	std::wstring _errorDescription;
 
 	void Init(HWND hWnd);
-	void Filter(const Rgba * buf, Rgba * destBuf, UINT width, UINT height);
+	std::vector<Rgba> Filter(const std::vector<Rgba>& srcBuf, UINT width, UINT height);
 public:
 	Renderer();
 	~Renderer();

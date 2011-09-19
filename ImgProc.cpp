@@ -43,8 +43,7 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
 	hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
 
-	Renderer r;
-	::renderer = &r;
+	::renderer = new Renderer();
 
 	if (!hWnd)
 		return FALSE;
@@ -148,6 +147,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case WM_DESTROY:
+		delete renderer;
 		PostQuitMessage(0);
 		break;
 	default:
