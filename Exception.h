@@ -10,7 +10,7 @@ public:
 class WinException : public BaseException
 {
 	const wchar_t* operation;
-	DWORD code;
+	HRESULT code;
 public:
 	WinException(HRESULT hr, const wchar_t* operation) : code(hr), operation(operation)
 	{
@@ -18,7 +18,7 @@ public:
 
 	WinException(const wchar_t* operation) : operation(operation)
 	{
-		code = GetLastError();
+		code = static_cast<HRESULT>(GetLastError());
 	}
 
 	virtual std::wstring GetDescription() const;
