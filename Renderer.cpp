@@ -157,15 +157,15 @@ void Renderer::Filter(const Rgba * srcBuf, Rgba * destBuf, UINT width, UINT heig
 		{ 2, 4, 5, 4, 2, },
 	};
 
-	for (UINT y = 0; y < height - mid; ++y)
-		for (UINT x = 0; x < width - mid; ++x)
+	for (UINT y = 0; y < height; ++y)
+		for (UINT x = 0; x < width; ++x)
 		{
 			UINT r = 0, g = 0, b = 0, a = 0;
 			UINT p = y*width + x;
 			UINT sum = 0;
 
-			for (UINT i = y < mid ? mid - y : 0; i < size; ++i)
-				for (UINT j = x < mid ? mid - x : 0; j < size; ++j)
+			for (UINT i = y > mid ? 0 : mid - y; i < (height - y > mid ? size : height - y + mid); ++i)
+				for (UINT j = x > mid ? 0 : mid - x; j < (width - x > mid ? size : width - x + mid); ++j)
 				{
 					BYTE f = filter[i][j];
 					sum += f;
