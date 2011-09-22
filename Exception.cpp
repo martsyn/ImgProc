@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Exception.h"
 
+
 using namespace std;
 
 BaseException::~BaseException()
